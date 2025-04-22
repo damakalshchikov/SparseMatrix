@@ -4,21 +4,24 @@ from scipy.sparse import coo_matrix
 
 def read_file_to_sparse_matrix(file_path):
     """
-    Reads a text file and converts its content into a sparse matrix.
+    Читает текстовый файл и преобразует его содержимое в разрежённую матрицу.
 
     Parameters:
-        file_path (str): Path to the text file.
+        file_path (str): Путь к текстовому файлу.
 
     Returns:
-        coo_matrix: Sparse matrix in COO format.
+        coo_matrix: Разреженная матрица в формате COO (Coordinate List).
     """
     array = np.loadtxt(file_path, dtype=float)
 
-    rows = array[:, 0].astype(int)
-    cols = array[:, 1].astype(int)
-    data = array[:, 2]
+    rows = array[:, 0].astype(int)  # кол-во строк
+    cols = array[:, 1].astype(int)  # кол-во столбцов
+    data = array[:, 2]  # значения
 
+    # Определяем размерность матрицы
     n_rows = int(np.max(rows)) + 1
     n_cols = int(np.max(cols)) + 1
 
-    return coo_matrix((data, (rows, cols)), shape=(n_rows, n_cols))
+    matrix = coo_matrix((data, (rows, cols)), shape=(n_rows, n_cols))
+
+    return matrix
