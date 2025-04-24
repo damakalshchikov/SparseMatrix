@@ -4,18 +4,18 @@ import funcsions
 import matplotlib.pyplot as plt
 
 
-def main(path):
+def main(file_name):
     """
     Точка входа
 
     Args:
-        path: Путь к файлу, из которого будет считываться матрица
+        file_name: Путь к файлу, из которого будет считываться матрица
 
     Returns: None
 
     """
 
-    a = funcsions.read_file_to_sparse_matrix(path)
+    a = funcsions.read_file_to_sparse_matrix("./Cases/" + file_name)
 
     print("Исходная матрица:")
     print(a.toarray(), "\n")
@@ -26,7 +26,7 @@ def main(path):
 
     funcsions.visualize_matrices(a.toarray(), b.toarray())
 
-    plt.savefig("./Images/Matrix.png", dpi=300, bbox_inches="tight")
+    plt.savefig(f"./Images/{file_name}.png", dpi=300, bbox_inches="tight")
 
 
 if __name__ == "__main__":
