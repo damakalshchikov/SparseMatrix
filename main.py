@@ -1,3 +1,5 @@
+import argparse
+
 import funcsions
 import matplotlib.pyplot as plt
 
@@ -27,6 +29,12 @@ def main(path):
     plt.savefig("./Images/Matrix.png", dpi=300, bbox_inches="tight")
 
 
-fig = funcsions.visualize_matrices(A.toarray(), B.toarray())
+if __name__ == "__main__":
+    # Добавляем аргументы командной строки
+    parser = argparse.ArgumentParser(description="Циклический сдвиг вправо CS матрицы")
+    parser.add_argument("path", help="Путь к .txt файлу, из которого будет считываться матрица")
 
-plt.savefig("./Images/Matrix.png", dpi=300, bbox_inches='tight')
+    # Получаем аргументы аргументы
+    args = parser.parse_args()
+
+    main(args.path)
