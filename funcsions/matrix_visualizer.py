@@ -19,7 +19,11 @@ def visualize_matrix(ax, matrix, title):
 
     # Таблица
     table = ax.table(
-        cellText=[[f"{val:.2f}" if val != 0 else "0" for val in row] for row in matrix],
+        cellText=[
+            [
+                f"{val:.2f}" if val != 0 else "0" for val in row
+            ] for row in matrix
+        ],
         cellLoc="center",
         loc="center",
         bbox=[0.1, 0.1, 0.8, 0.8]

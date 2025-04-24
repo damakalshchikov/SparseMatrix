@@ -31,8 +31,12 @@ def main(file_name):
 
 if __name__ == "__main__":
     # Добавляем аргументы командной строки
-    parser = argparse.ArgumentParser(description="Циклический сдвиг вправо CS матрицы")
-    parser.add_argument("path", help="Путь к .txt файлу, из которого будет считываться матрица")
+    parser = argparse.ArgumentParser(
+        description="Циклический сдвиг вправо CS матрицы"
+    )
+    parser.add_argument(
+        "path", help="Путь к .txt файлу, из которого будет считываться матрица"
+    )
 
     # Получаем аргументы аргументы
     args = parser.parse_args()
