@@ -14,6 +14,4 @@ print(B.toarray())
 
 fig = funcsions.visualize_matrices(A.toarray(), B.toarray())
 
-plt.savefig("matrix_visualization.png", dpi=300, bbox_inches='tight')
-
-plt.show()
+plt.savefig("./Images/Matrix.png", dpi=300, bbox_inches='tight')
