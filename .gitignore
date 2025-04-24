@@ -64,6 +64,7 @@ venv.bak/
 
 # PyCharm
 .idea
+.junie
 
 # Spyder project settings
 .spyderproject
