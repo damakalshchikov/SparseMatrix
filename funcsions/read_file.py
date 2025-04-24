@@ -6,11 +6,12 @@ def read_file_to_sparse_matrix(file_path):
     """
     Читает текстовый файл и преобразует его содержимое в разрежённую матрицу.
 
-    Parameters:
-        file_path (str): Путь к текстовому файлу.
+    Args:
+        file_path: Путь к текстовому файлу.
 
     Returns:
         coo_matrix: Разреженная матрица в формате COO (Coordinate List).
+
     """
     array = np.loadtxt(file_path, dtype=float)
 

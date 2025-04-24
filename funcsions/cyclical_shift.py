@@ -5,11 +5,12 @@ def shift(matrix):
     """
     Функция для циклического сдвига матрицы на 1 позицию вправо.
 
-    Parameters:
-        matrix (scipy.sparse._coo.coo_matrix): Исходная матрица.
+    Args:
+        matrix: Исходная матрица.
 
     Returns:
         scipy.sparse._coo.coo_matrix: Циклически сдвинутая матрица.
+
     """
 
     # Размеры матрицы

@@ -1,5 +1,4 @@
 import matplotlib.pyplot as plt
-from matplotlib import rcParams
 
 
 def visualize_matrix(ax, matrix, title):
