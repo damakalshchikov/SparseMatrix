@@ -2,15 +2,41 @@ import matplotlib.pyplot as plt
 from matplotlib import rcParams
 
 
-def visualize_matrices(original_matrix, shifted_matrix):
+def visualize_matrix(ax, matrix, title):
     """
-    Визуализирует две матрицы в математическом стиле рядом друг с другом.
-    
-    Parameters:
-        original_matrix (numpy.ndarray): Исходная матрица
-        shifted_matrix (numpy.ndarray): Сдвинутая матрица
-        
+    Визуализирует матрицу
+
+    Args:
+        ax: Оси
+        matrix: Матрица, на которой будет строиться визуализация
+        title: Заголовок графика
+
     Returns:
+        Таблица matplotlib.table.Table
+
+    """
+    # Заголовок графика
+    ax.set_title(title)
+
+    # Таблица
+    table = ax.table(
+        cellText=[[f"{val:.2f}" if val != 0 else "0" for val in row] for row in matrix],
+        cellLoc="center",
+        loc="center",
+        bbox=[0.1, 0.1, 0.8, 0.8]
+    )
+
+    # Убираем оси
+    ax.axis("off")
+
+    # Стиль таблицы
+    table.auto_set_font_size(False)
+    table.set_fontsize(10)
+    table.scale(1, 1.5)
+
+    return table
+
+
 def visualize_matrices(original_matrix, shifted_matrix):
     """
     Визуализирует две матрицы рядом друг с другом
@@ -24,37 +50,6 @@ def visualize_matrices(original_matrix, shifted_matrix):
 
     """
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
-    
-    # Отключаем оси для обоих подграфиков
-    ax1.axis("off")
-    ax2.axis("off")
-    
-    # Функция для форматирования матрицы в LaTeX
-    def format_matrix_latex(matrix, name):
-        matrix_str = r"$" + name + r"_{" + f"{m}{n}" + r"} = \begin{pmatrix}"
-        
-        for i in range(m):
-            row_str = " & ".join(
-                [f"{val:.2f}" if val != 0 else "0" for val in matrix[i, :]]
-            )
-            matrix_str += row_str
-            if i < m - 1:
-                matrix_str += r" \\ "
-        
-        matrix_str += r"\end{pmatrix}$"
-        return matrix_str
-    
-    # Отображаем исходную матрицу
-    original_latex = format_matrix_latex(original_matrix, "A")
-    ax1.text(0.5, 0.5, original_latex, size=14, ha="center", va="center")
-    ax1.set_title("Исходная матрица")
-    
-    # Отображаем сдвинутую матрицу
-    shifted_latex = format_matrix_latex(shifted_matrix, "B")
-    ax2.text(0.5, 0.5, shifted_latex, size=14, ha="center", va="center")
-    ax2.set_title("Циклически сдвинутая матрица")
-    
-    # Настраиваем поля
 
     visualize_matrix(ax1, original_matrix, "До:")
     visualize_matrix(ax2, shifted_matrix, "После:")
