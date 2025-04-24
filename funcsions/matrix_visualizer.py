@@ -11,17 +11,18 @@ def visualize_matrices(original_matrix, shifted_matrix):
         shifted_matrix (numpy.ndarray): Сдвинутая матрица
         
     Returns:
-        matplotlib.figure.Figure: Объект фигуры с визуализацией
+def visualize_matrices(original_matrix, shifted_matrix):
     """
-    # Получаем размеры матрицы
-    m, n = original_matrix.shape
-    
-    # Настраиваем параметры для LaTeX-рендеринга
-    rcParams["text.usetex"] = True
-    rcParams["font.family"] = "serif"
-    rcParams["font.serif"] = ["Computer Modern Roman"]
-    
-    # Создаем фигуру с двумя подграфиками
+    Визуализирует две матрицы рядом друг с другом
+
+    Args:
+        original_matrix: Исходная матрица
+        shifted_matrix: Сдвинутая матрица
+
+    Returns:
+        matplotlib.figure.Figure: Объект фигуры с визуализацией
+
+    """
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5))
     
     # Отключаем оси для обоих подграфиков
@@ -54,6 +55,10 @@ def visualize_matrices(original_matrix, shifted_matrix):
     ax2.set_title("Циклически сдвинутая матрица")
     
     # Настраиваем поля
+
+    visualize_matrix(ax1, original_matrix, "До:")
+    visualize_matrix(ax2, shifted_matrix, "После:")
+
     plt.tight_layout()
-    
+
     return fig
