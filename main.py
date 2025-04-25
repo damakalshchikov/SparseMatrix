@@ -1,4 +1,5 @@
 import argparse
+import time
 
 import funcsions
 import matplotlib.pyplot as plt
@@ -20,7 +21,11 @@ def main(file_name):
     print("Исходная матрица:")
     print(a.toarray(), "\n")
 
+    start_time = time.time()
     b = funcsions.shift(a)
+    end_time = time.time()
+    print(f"Время выполнения: {end_time - start_time:.6f} секунд\n")
+
     print("Циклически сдвинутая матрица:")
     print(b.toarray())
 
