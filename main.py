@@ -5,7 +5,7 @@ import funcsions
 import matplotlib.pyplot as plt
 
 
-def main(file_name):
+def main(file_name, mode=1, n=None, m=None, grade=None):
     """
     Точка входа
 
@@ -16,22 +16,25 @@ def main(file_name):
 
     """
 
+    if mode == 2:
+        file_name = funcsions.generate_sparse_matrix_file(n, m, grade)
+
     a = funcsions.read_file_to_sparse_matrix("./Cases/" + file_name)
 
-    print("Исходная матрица:")
-    print(a.toarray(), "\n")
+    # print("Исходная матрица:")
+    # print(a.toarray(), "\n")
 
     start_time = time.time()
     b = funcsions.shift(a)
     end_time = time.time()
     print(f"Время выполнения: {end_time - start_time:.6f} секунд\n")
 
-    print("Циклически сдвинутая матрица:")
-    print(b.toarray())
+    # print("Циклически сдвинутая матрица:")
+    # print(b.toarray())
 
-    funcsions.visualize_matrices(a.toarray(), b.toarray())
+    # funcsions.visualize_matrices(a.toarray(), b.toarray())
 
-    plt.savefig(f"./Images/{file_name}.png", dpi=300, bbox_inches="tight")
+    # plt.savefig(f"./Images/{file_name}.png", dpi=300, bbox_inches="tight")
 
 
 if __name__ == "__main__":
@@ -39,11 +42,43 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Циклический сдвиг вправо CS матрицы"
     )
+
     parser.add_argument(
         "path", help="Путь к .txt файлу, из которого будет считываться матрица"
     )
 
+    parser.add_argument(
+        "-m",
+        "--mode",
+        type=int,
+        default=1,
+        help="Режим работы программы (1 - чтение из файла, 2 - генерация матрицы)",
+    )
+
+    parser.add_argument(
+        "-n",
+        "--n",
+        type=int,
+        default=None,
+        help="Количество строк матрицы (только для режима 2)",
+    )
+
+    parser.add_argument(
+        "-k",
+        "--m",
+        type=int,
+        default=None,
+        help="Количество столбцов матрицы (только для режима 2)",
+    )
+
+    parser.add_argument(
+        "-g",
+        "--grade",
+        type=float,
+        default=None,
+        help="Плотность матрицы (только для режима 2)",
+    )
     # Получаем аргументы аргументы
     args = parser.parse_args()
 
-    main(args.path)
+    main(args.path, args.mode, args.n, args.m, args.grade)
