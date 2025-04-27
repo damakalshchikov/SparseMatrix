@@ -1,12 +1,12 @@
-from .cyclical_shift import shift_optimized, shift_for_huge_matrices
+from .cyclical_shift import shift_coo
 from .generate_matrix import generate_sparse_matrix_file
-from .matrix_visualizer import visualize_matrices
+from .matrix_visualizer import visualize_sparse_preview, compare_sparse_matrices
 from .read_file import read_file_to_sparse_matrix
 
 __all__ = [
-    "shift_optimized",
-    "shift_for_huge_matrices",
+    "shift_coo",
     "read_file_to_sparse_matrix",
-    "visualize_matrices",
+    "visualize_sparse_preview",
+    "compare_sparse_matrices",
     "generate_sparse_matrix_file",
 ]

@@ -1,134 +1,45 @@
-from scipy.sparse import coo_matrix, lil_matrix
-import numpy as np
-import gc
+from scipy.sparse import coo_matrix
 
 
-def shift_optimized(matrix, chunk_size=10000):
+def shift_coo(matrix):
     """
-    Функция для циклического сдвига разреженной матрицы на 1 позицию вправо.
-
-    Args:
-        matrix: Исходная разреженная матрица (coo_matrix)
-        chunk_size: Размер обрабатываемых за один раз данных
-
-    Returns:
-        scipy.sparse._coo.coo_matrix: Циклически сдвинутая матрица
-    """
-    # Получаем размеры матрицы
-    n_rows, n_cols = matrix.shape
-    print(f"Размер матрицы: {n_rows} x {n_cols}")
-    total_elements = matrix.nnz  # Количество ненулевых элементов
-
-    # Для более эффективной работы с большими матрицами преобразуем в CSR
-    if not isinstance(matrix, coo_matrix):
-        matrix = matrix.tocoo()
-
-    # Обработка по частям для очень больших матриц
-    if n_rows > chunk_size:
-        # Инициализируем списки для новых координат и данных
-        new_rows = []
-        new_cols = []
-        data_chunks = []
-
-        # Обрабатываем данные порциями
-        for i in range(0, total_elements, chunk_size):
-            end_idx = min(i + chunk_size, total_elements)
-
-            # Выделяем часть данных
-            rows_chunk = matrix.row[i:end_idx]
-            cols_chunk = matrix.col[i:end_idx]
-            data_chunk = matrix.data[i:end_idx]
-
-            # Вычисляем линейные индексы для текущей порции
-            linear_indices = rows_chunk * n_cols + cols_chunk
-
-            # Сдвигаем линейные индексы
-            shifted_linear_indices = (linear_indices + 1) % (n_rows * n_cols)
-
-            # Преобразуем обратно в координаты
-            rows_shifted = shifted_linear_indices // n_cols
-            cols_shifted = shifted_linear_indices % n_cols
-
-            # Добавляем в общие списки
-            new_rows.append(rows_shifted)
-            new_cols.append(cols_shifted)
-            data_chunks.append(data_chunk)
-
-            # Явно освобождаем память для временных массивов
-            del rows_chunk, cols_chunk, linear_indices, shifted_linear_indices
-            gc.collect()
-
-        # Объединяем все обработанные порции
-        new_rows = np.concatenate(new_rows)
-        new_cols = np.concatenate(new_cols)
-        new_data = np.concatenate(data_chunks)
-
-    else:
-        # Для матриц небольшого размера используем стандартный подход
-        linear_indices = matrix.row * n_cols + matrix.col
-        shifted_linear_indices = (linear_indices + 1) % (n_rows * n_cols)
-
-        new_rows = shifted_linear_indices // n_cols
-        new_cols = shifted_linear_indices % n_cols
-        new_data = matrix.data
-
-    # Создаем новую разреженную матрицу
-    shifted_matrix = coo_matrix((new_data, (new_rows, new_cols)), shape=matrix.shape)
-
-    return shifted_matrix
-
-
-def shift_for_huge_matrices(matrix, chunk_size=1000000):
-    """
-    Алгоритм для сдвига очень больших матриц,
+    Функция для циклического сдвига разреженной матрицы на 1 позицию вправо,
 
     Args:
         matrix: Исходная разреженная матрица
-        chunk_size: Размер обрабатываемых за один раз данных
 
     Returns:
         scipy.sparse.coo_matrix: Циклически сдвинутая матрица
     """
+    # Преобразуем в COO, если матрица в другом формате
+    if not isinstance(matrix, coo_matrix):
+        matrix = matrix.tocoo()
+
+    # Получаем размеры матрицы и данные
     n_rows, n_cols = matrix.shape
-    total_size = n_rows * n_cols
+    rows = matrix.row.copy()
+    cols = matrix.col.copy()
+    data = matrix.data.copy()
 
-    # Для сверхбольших матриц используем LIL формат для построения результата
-    if matrix.nnz > 10000000:
-        # Преобразуем входную матрицу в COO для итерации по элементам
-        if not isinstance(matrix, coo_matrix):
-            matrix = matrix.tocoo()
+    # Индексы элементов, которые останутся в той же строке
+    same_row_mask = cols < n_cols - 1
+    # Индексы элементов, которые перейдут в следующую строку
+    next_row_mask = ~same_row_mask
 
-        # Создаем пустую матрицу для результата
-        result = lil_matrix((n_rows, n_cols))
+    # Обработка элементов, которые останутся в той же строке (просто увеличиваем столбец)
+    cols[same_row_mask] += 1
 
-        # Обрабатываем порциями
-        for chunk_start in range(0, matrix.nnz, chunk_size):
-            chunk_end = min(chunk_start + chunk_size, matrix.nnz)
+    # Обработка элементов, которые перейдут на следующую строку
+    cols[next_row_mask] = 0  # Переход в начало строки
 
-            # Получаем текущую порцию данных
-            rows = matrix.row[chunk_start:chunk_end]
-            cols = matrix.col[chunk_start:chunk_end]
-            data = matrix.data[chunk_start:chunk_end]
+    # Увеличиваем индекс строки для элементов, переходящих на следующую
+    rows[next_row_mask] += 1
 
-            # Для каждого элемента вычисляем новую позицию после сдвига
-            for i in range(len(rows)):
-                # Вычисляем линейный индекс и его сдвиг
-                linear_idx = rows[i] * n_cols + cols[i]
-                new_linear_idx = (linear_idx + 1) % total_size
+    # Обработка элементов из последней строки, которые переходят в начало
+    last_row_mask = rows >= n_rows
+    rows[last_row_mask] = 0
 
-                # Преобразуем обратно в координаты
-                new_row = new_linear_idx // n_cols
-                new_col = new_linear_idx % n_cols
+    # Создаем новую разреженную матрицу
+    shifted_matrix = coo_matrix((data, (rows, cols)), shape=matrix.shape)
 
-                # Заполняем результирующую матрицу
-                result[new_row, new_col] = data[i]
-
-            # Очистка памяти после обработки порции
-            del rows, cols, data
-            gc.collect()
-
-        # Преобразуем результат в COO формат перед возвратом
-        return result.tocoo()
-    else:
-        # Для матриц меньшего размера используем оптимизированную функцию
-        return shift_optimized(matrix, chunk_size)
+    return shifted_matrix

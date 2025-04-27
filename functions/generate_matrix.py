@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def generate_sparse_matrix_file(n, m, grade, filename=None, chunk_size=1000000):
+def generate_sparse_matrix_file(n, m, grade, filename=None, chunk_size=100000):
     """
     Генерирует текстовый файл со структурой разреженной матрицы.
     Оптимизирован для работы с очень большими матрицами.
@@ -20,13 +20,13 @@ def generate_sparse_matrix_file(n, m, grade, filename=None, chunk_size=1000000):
     print(f"Генерация матрицы размером {n}x{m} с плотностью {grade}")
 
     # Вычисляем количество ненулевых элементов
-    total_elements = n * m
-    requested_elements = int(total_elements * grade)
+    total_cells = n * m
+
+    requested_elements = int(total_cells * grade)
 
     # Ограничиваем максимальное количество элементов для очень больших матриц
-    if requested_elements > 100000000:
-        print("Предупреждение: количество элементов ограничено до 100 миллионов")
-        non_zero_count = 100000000
+    if requested_elements > 10000000:
+        non_zero_count = 10000000
     else:
         non_zero_count = requested_elements
 
@@ -34,51 +34,49 @@ def generate_sparse_matrix_file(n, m, grade, filename=None, chunk_size=1000000):
     if filename is None:
         filename = f"{n}x{m}.txt"
 
-    # Для очень больших матриц генерируем и записываем данные порциями
-    if non_zero_count > chunk_size:
-        with open(f"./Cases/{n}x{m}.txt", "w") as f:
-            elements_written = 0
-            used_coords = set()
+    file_path = f"./Cases/{filename}"
 
-            while elements_written < non_zero_count:
-                # Определяем размер
-                current_chunk_size = min(chunk_size, non_zero_count - elements_written)
+    # Открываем файл для записи
+    with open(file_path, "w") as f:
+        # Генерируем и записываем данные порциями
+        elements_written = 0
+        coord_hash = (
+            set()
+        )  # Используем хэш-таблицу для отслеживания уникальных координат
 
-                # Генерируем координаты
-                chunk_rows = np.random.randint(
-                    0, n, size=current_chunk_size * 2
-                )
-                chunk_cols = np.random.randint(0, m, size=current_chunk_size * 2)
-                chunk_values = np.round(
-                    np.random.uniform(1.0, 100.0, size=current_chunk_size * 2), 1
-                )
+        while elements_written < non_zero_count:
+            # Определяем размер текущей порции
+            current_chunk_size = min(chunk_size, non_zero_count - elements_written)
 
-                chunk_coords = list(zip(chunk_rows, chunk_cols))
-                new_elements = []
+            # Используем больше координат, чем нужно, чтобы учесть дубликаты
+            sample_size = min(current_chunk_size * 2, 1000000)
 
-                for i, (row, col) in enumerate(chunk_coords):
-                    if elements_written >= non_zero_count:
-                        break
+            # Генерируем координаты и значения для текущей порции
+            chunk_rows = np.random.randint(0, n, size=sample_size)
+            chunk_cols = np.random.randint(0, m, size=sample_size)
+            chunk_values = np.round(np.random.uniform(1.0, 100.0, size=sample_size), 1)
 
-                    if (row, col) not in used_coords:
-                        used_coords.add((row, col))
-                        new_elements.append([row, col, chunk_values[i]])
-                        elements_written += 1
+            # Записываем уникальные элементы
+            for i in range(sample_size):
+                if elements_written >= non_zero_count:
+                    break
 
-                if new_elements:
-                    chunk_array = np.array(new_elements)
-                    np.savetxt(f, chunk_array, fmt="%d %d %.1f")
+                coord = (chunk_rows[i], chunk_cols[i])
+                if coord not in coord_hash:
+                    coord_hash.add(coord)
+                    f.write(f"{coord[0]} {coord[1]} {chunk_values[i]:.1f}\n")
+                    elements_written += 1
 
-    else:
-        rows = np.random.randint(0, n, size=non_zero_count)
-        cols = np.random.randint(0, m, size=non_zero_count)
-        values = np.round(np.random.uniform(1.0, 100.0, size=non_zero_count), 1)
+            # Освобождаем память
+            del chunk_rows, chunk_cols, chunk_values
 
-        # Убираем дубликаты координат
-        unique_coords = list(set(zip(rows, cols)))
-        result = np.column_stack((unique_coords, values[: len(unique_coords)]))
-        result = result[np.lexsort((result[:, 1], result[:, 0]))]
-
-        np.savetxt(f"./Cases/{n}x{m}.txt", result, fmt="%d %d %.1f")
+            # Если мы генерируем почти все элементы полной матрицы,
+            # то можем зациклиться из-за повторяющихся координат
+            # В этом случае уменьшаем требуемое количество элементов
+            if (
+                elements_written < non_zero_count
+                and len(coord_hash) > 0.9 * total_cells
+            ):
+                break
 
     return filename

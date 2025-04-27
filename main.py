@@ -1,7 +1,6 @@
 import argparse
 import time
 
-import matplotlib.pyplot as plt
 
 import functions
 
@@ -31,33 +30,30 @@ def main(file_name, mode=1, n=None, m=None, grade=None):
 
     start_time = time.time()
 
-    # Выбор метода на основе размерности
-    if matrix_size > 9999:
-        print("Используется оптимизированный метод")
-        b = functions.shift_for_huge_matrices(a)
-    else:
-        print("Используется стандартный метод")
-        b = functions.shift_optimized(a)
+    # Используем единую функцию сдвига для всех матриц
+    b = functions.shift_coo(a)
 
     end_time = time.time()
     print(f"Время выполнения: {end_time - start_time:.6f} секунд\n")
 
-    # Визуализация только для небольших матриц
-    if matrix_size <= 50:
-        functions.visualize_matrices(a.toarray(), b.toarray())
-        plt.savefig(
-            f"./Images/{file_name.replace('.txt', '')}.png",
+    # Визуализация для матриц
+    if matrix_size <= 20:
+        # Для маленьких матриц визуализируем всю матрицу
+        fig = functions.compare_sparse_matrices(a, b)
+        fig.savefig(
+            f"./Images/{file_name.replace(".txt", "")}.png",
             dpi=300,
             bbox_inches="tight",
         )
     else:
-        print("Визуализация пропущена из-за большого размера матрицы")
-        # Вывод первых нескольких элементов для проверки сдвига
+        # Для больших матриц визуализируем только предварительный просмотр
         preview_size = min(10, matrix_size)
-        print(f"\nПервые {preview_size}x{preview_size} элементы исходной матрицы:")
-        print(a.toarray()[:preview_size, :preview_size])
-        print(f"\nПервые {preview_size}x{preview_size} элементы после сдвига:")
-        print(b.toarray()[:preview_size, :preview_size])
+        fig = functions.compare_sparse_matrices(a, b, preview_size)
+        fig.savefig(
+            f"./Images/{file_name.replace(".txt", "")}_preview.png",
+            dpi=300,
+            bbox_inches="tight",
+        )
 
 
 if __name__ == "__main__":
