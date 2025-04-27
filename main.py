@@ -3,6 +3,7 @@ import time
 
 import funcsions
 import matplotlib.pyplot as plt
+from funcsions.cyclical_shift_opt import shift_optimized
 
 
 def main(file_name, mode=1, n=None, m=None, grade=None):
@@ -17,7 +18,7 @@ def main(file_name, mode=1, n=None, m=None, grade=None):
     """
 
     if mode == 2:
-        file_name = funcsions.generate_sparse_matrix_file(n, m, grade)
+        file_name = funcsions.generate_sparse_matrix_file(n, m, grade, file_name)
 
     a = funcsions.read_file_to_sparse_matrix("./Cases/" + file_name)
 
@@ -25,16 +26,16 @@ def main(file_name, mode=1, n=None, m=None, grade=None):
     # print(a.toarray(), "\n")
 
     start_time = time.time()
-    b = funcsions.shift(a)
+    b = shift_optimized(a)
     end_time = time.time()
     print(f"Время выполнения: {end_time - start_time:.6f} секунд\n")
 
-    # print("Циклически сдвинутая матрица:")
-    # print(b.toarray())
+    print("Циклически сдвинутая матрица:")
+    print(b.toarray())
 
-    # funcsions.visualize_matrices(a.toarray(), b.toarray())
+    funcsions.visualize_matrices(a.toarray(), b.toarray())
 
-    # plt.savefig(f"./Images/{file_name}.png", dpi=300, bbox_inches="tight")
+    plt.savefig(f"./Images/{file_name}.png", dpi=300, bbox_inches="tight")
 
 
 if __name__ == "__main__":

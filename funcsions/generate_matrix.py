@@ -71,4 +71,4 @@ def generate_sparse_matrix_file(n, m, grade, filename=None, chunk_size=1000000):
         # Если размер небольшой, записываем все сразу
         np.savetxt(file_path, result, fmt="%d %d %.1f")
 
-    return file_path
+    return filename
