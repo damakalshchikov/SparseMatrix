@@ -4,7 +4,6 @@ import numpy as np
 def generate_sparse_matrix_file(n, m, grade, filename=None, chunk_size=100000):
     """
     Генерирует текстовый файл со структурой разреженной матрицы.
-    Оптимизирован для работы с очень большими матрицами.
 
     Args:
         n (int): Количество строк матрицы

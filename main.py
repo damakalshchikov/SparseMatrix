@@ -39,18 +39,24 @@ def main(file_name, mode=1, n=None, m=None, grade=None):
     # Визуализация для матриц
     if matrix_size <= 20:
         # Для маленьких матриц визуализируем всю матрицу
-        fig = functions.compare_sparse_matrices(a, b)
+        fig = functions.compare_sparse_matrices(a, b, preview_size=matrix_size)
         fig.savefig(
             f"./Images/{file_name.replace(".txt", "")}.png",
             dpi=300,
             bbox_inches="tight",
         )
     else:
-        # Для больших матриц визуализируем только предварительный просмотр
-        preview_size = min(10, matrix_size)
-        fig = functions.compare_sparse_matrices(a, b, preview_size)
-        fig.savefig(
-            f"./Images/{file_name.replace(".txt", "")}_preview.png",
+        # Для больших матриц визуализируем только ключевые области
+        fig1 = functions.visualize_sparse_matrix_regions(a, "До")
+        fig1.savefig(
+            f"./Images/{file_name.replace(".txt", "")}_fragments_after.png",
+            dpi=300,
+            bbox_inches="tight",
+        )
+
+        fig2 = functions.visualize_sparse_matrix_regions(b, "После")
+        fig2.savefig(
+            f"./Images/{file_name.replace('.txt', '')}_fragments_befor.png",
             dpi=300,
             bbox_inches="tight",
         )
